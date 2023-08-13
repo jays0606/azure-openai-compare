@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import openai
+import os
 
 from typing import List
 from openai_tester import OpenAITester
@@ -68,11 +70,33 @@ def run_tests(tester, text_list: List[str]):
     return chat_results, embedding_result, streaming_results
 
 
-def plot_comparison(openai_results, azure_results, test_type):
+def plot_comparison_chat(openai_results, azure_results):
     labels = list(openai_results.keys())
     openai_latencies = [np.mean(openai_results[key]) for key in labels]
     azure_latencies = [np.mean(azure_results[key]) for key in labels]
 
+    plot_bars(labels, openai_latencies, azure_latencies, "Chat")
+
+
+def plot_comparison_embedding(openai_results, azure_results):
+    labels = ["Embedding"]
+    openai_latencies = [np.mean(openai_results)]
+    azure_latencies = [np.mean(azure_results)]
+
+    plot_bars(labels, openai_latencies, azure_latencies, "Embedding")
+
+
+def plot_comparison_streaming(openai_results, azure_results):
+    metrics = list(next(iter(openai_results.values())).keys())
+    for metric in metrics:
+        labels = list(openai_results.keys())
+        openai_latencies = [np.mean(openai_results[key][metric]) for key in labels]
+        azure_latencies = [np.mean(azure_results[key][metric]) for key in labels]
+
+        plot_bars(labels, openai_latencies, azure_latencies, f"Streaming - {metric}")
+
+
+def plot_bars(labels, openai_latencies, azure_latencies, title):
     x = np.arange(len(labels))  # the label locations
     width = 0.35  # the width of the bars
 
@@ -81,7 +105,7 @@ def plot_comparison(openai_results, azure_results, test_type):
     rects2 = ax.bar(x + width / 2, azure_latencies, width, label="Azure")
 
     ax.set_ylabel("Latency (seconds)")
-    ax.set_title(f"Latencies by model and platform for {test_type}")
+    ax.set_title(f"Latencies by model and platform for {title}")
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.legend()
@@ -89,27 +113,24 @@ def plot_comparison(openai_results, azure_results, test_type):
     ax.bar_label(rects1, padding=3)
     ax.bar_label(rects2, padding=3)
 
-    fig.tight_layout()
-    plt.show()
-    plt.savefig(f"data/{test_type}.png")
+    plt.savefig(f"data/plot/{title.replace(' ', '_').lower()}_comparison.png")
     plt.clf()
 
 
 if __name__ == "__main__":
-    azure_tester = AzureTester()
-    openai_tester = OpenAITester()
-
     with open("data/query_sample.txt") as f:
-        full_text = f.readlines()[:2]
+        full_text = f.readlines()
 
+    openai_tester = OpenAITester()
     openai_chat_results, openai_embedding_result, openai_streaming_results = run_tests(
         openai_tester, full_text
     )
 
+    azure_tester = AzureTester()
     azure_chat_results, azure_embedding_result, azure_streaming_results = run_tests(
         azure_tester, full_text
     )
 
-    plot_comparison(openai_chat_results, azure_chat_results, "Chat")
-    plot_comparison(openai_embedding_result, azure_embedding_result, "Embedding")
-    plot_comparison(openai_streaming_results, azure_streaming_results, "Streaming")
+    plot_comparison_chat(openai_chat_results, azure_chat_results)
+    plot_comparison_embedding(openai_embedding_result, azure_embedding_result)
+    plot_comparison_streaming(openai_streaming_results, azure_streaming_results)

@@ -52,6 +52,7 @@ class OpenAITester:
                 "content" in _["choices"][0]["delta"]
             ):  # first response is always "role": "assistant"
                 chunk_times.append(time.time() - start_time)
+                # print(_["choices"][0]["delta"]["content"])
 
         first_response_latency = chunk_times[1] - chunk_times[0]
         avg_step_interval = sum(
@@ -60,13 +61,3 @@ class OpenAITester:
         final_response_latency = chunk_times[-1]
 
         return first_response_latency, avg_step_interval, final_response_latency
-
-
-if __name__ == "__main__":
-    with open("data/query_sample.txt") as f:
-        full_text = f.readlines()
-
-    tester = OpenAITester()
-    for text in full_text:
-        # tester.streaming(model="gpt-3.5-turbo-0613", input_text=text)
-        tester.chat(model="gpt-3.5-turbo-0613", input_text=text)
