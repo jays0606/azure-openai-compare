@@ -3,7 +3,6 @@ import openai
 import time
 from dotenv import load_dotenv
 from typing import Tuple
-from utils import extract_text_from_pdf
 
 
 class AzureTester:
@@ -11,7 +10,6 @@ class AzureTester:
 
     def __init__(self):
         load_dotenv()
-
         openai.api_type = "azure"
         openai.api_version = "2023-05-15"
         openai.api_key = os.getenv("AZURE_OPENAI_API_KEY")
@@ -29,7 +27,9 @@ class AzureTester:
         _ = openai.ChatCompletion.create(
             messages=[{"role": "system", "content": input_text}],
             deployment_id=self.deployment_id_dict[model],
+            temperature=0,
         )
+        # print(_["choices"][0]["message"]["content"])
         elapsed_time = time.time() - start_time
         return elapsed_time
 
@@ -71,68 +71,10 @@ class AzureTester:
 
 
 if __name__ == "__main__":
+    with open("data/query_sample.txt") as f:
+        full_text = f.readlines()
+
     tester = AzureTester()
-
-    full_text = extract_text_from_pdf("data/gpt4.pdf")
-    chunk_size = 1000
-
-    chat_results = {
-        "gpt-3.5-turbo-16k-0613": [],
-        "gpt-3.5-turbo-0613": [],
-        "gpt-4-0613": [],
-    }
-    embedding_result = []
-    streaming_results = {
-        "gpt-3.5-turbo-16k-0613": {
-            "first_response": [],
-            "avg_step_interval": [],
-            "final_response": [],
-        },
-        "gpt-3.5-turbo-0613": {
-            "first_response": [],
-            "avg_step_interval": [],
-            "final_response": [],
-        },
-        "gpt-4-0613": {
-            "first_response": [],
-            "avg_step_interval": [],
-            "final_response": [],
-        },
-    }
-
-    current_index = 0
-    while current_index + chunk_size <= len(full_text):
-        input_text = full_text[current_index : current_index + chunk_size]
-        current_index += chunk_size
-
-        for model in AzureTester.chat_models:
-            latency = tester.chat(model, input_text)
-            chat_results[model].append(latency)
-
-        embedding_latency = tester.embedding(input_text)
-        embedding_result.append(embedding_latency)
-
-        for model in AzureTester.chat_models:
-            (
-                first_response_latency,
-                avg_step_interval,
-                final_response_latency,
-            ) = tester.streaming(model, input_text)
-            streaming_results[model]["first_response"].append(first_response_latency)
-            streaming_results[model]["avg_step_interval"].append(avg_step_interval)
-            streaming_results[model]["final_response"].append(final_response_latency)
-
-    print("\nChat Results:")
-    for model, latencies in chat_results.items():
-        avg_latency = sum(latencies) / len(latencies)
-        print(f"Model {model}: Average Latency {avg_latency:.4f} seconds")
-
-    embedding_avg_latency = sum(embedding_result) / len(embedding_result)
-    print(f"\nEmbedding Average Latency: {embedding_avg_latency:.4f} seconds")
-
-    print("\nStreaming Results:")
-    for model, results in streaming_results.items():
-        print(f"\nModel: {model}")
-        for test_type, latencies in results.items():
-            avg_latency = sum(latencies) / len(latencies)
-            print(f"{test_type}: Average Latency {avg_latency:.4f} seconds")
+    for text in full_text:
+        # tester.streaming(model="gpt-3.5-turbo-0613", input_text=text)
+        tester.chat(model="gpt-3.5-turbo-0613", input_text=text)
