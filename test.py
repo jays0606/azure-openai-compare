@@ -105,8 +105,8 @@ def plot_comparison_streaming(
 
 
 def plot_bars(labels, openai_latencies, azure_latencies, title):
-    x = np.arange(len(labels))  # the label locations
-    width = 0.35  # the width of the bars
+    x = np.arange(len(labels))
+    width = 0.35
 
     fig, ax = plt.subplots(figsize=(12, 8))
     rects1 = ax.bar(x - width / 2, openai_latencies, width, label="OpenAI")

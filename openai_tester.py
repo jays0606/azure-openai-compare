@@ -23,7 +23,6 @@ class OpenAITester:
             model=model,
             temperature=0,
         )
-        # print(_["choices"][0]["message"]["content"])
         elapsed_time = time.time() - start_time
         return elapsed_time
 
