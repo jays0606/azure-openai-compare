@@ -1,5 +1,9 @@
 # Comparing Azure OpenAI and OpenAI: A Deep Dive
 
+## [Reading on Medium](https://medium.com/@jaehoshin62/comparing-azure-openai-and-openai-a-deep-dive-dd18c642e976)
+
+<br />
+
 ## Introduction
 There are primarily two methods to deploy OpenAI LLM services: directly using OpenAI or through Azure OpenAI.
 
@@ -31,10 +35,6 @@ python3 test.py
 Azure OpenAI significantly outperforms OpenAI in speed, with up to 8x faster performance in streaming and 3x faster in chat / embedding models. 
 
 While OpenAI is optimal for quick prototyping due to its simple setup, Azure's superior speed and responsiveness make it ideal for large-scale, performance-centric projects.
-
-<br />
-
-## [Further Reading on Medium](https://medium.com/@jaehoshin62/comparing-azure-openai-and-openai-a-deep-dive-dd18c642e976)
 
 <br />
 
