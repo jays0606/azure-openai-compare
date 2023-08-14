@@ -48,11 +48,7 @@ class OpenAITester:
 
         chunk_times = [time.time() - start_time]
         for _ in response:
-            if (
-                "content" in _["choices"][0]["delta"]
-            ):  # first response is always "role": "assistant"
-                chunk_times.append(time.time() - start_time)
-                # print(_["choices"][0]["delta"]["content"])
+            chunk_times.append(time.time() - start_time)
 
         first_response_latency = chunk_times[1] - chunk_times[0]
         avg_step_interval = sum(
