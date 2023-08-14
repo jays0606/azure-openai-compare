@@ -2,8 +2,6 @@
 
 ## [Reading on Medium](https://medium.com/@jaehoshin62/comparing-azure-openai-and-openai-a-deep-dive-dd18c642e976)
 
-<br />
-
 ## Introduction
 There are primarily two methods to deploy OpenAI LLM services: directly using OpenAI or through Azure OpenAI.
 
